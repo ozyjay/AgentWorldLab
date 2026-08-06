@@ -119,6 +119,8 @@ def create_backend(name: str) -> Backend:
 
         return MockBackend()
     if name == "transformers":
+        from agentworldlab.backends.transformers import TransformersBackend
+
         return TransformersBackend()
     if name == "vllm":
         return VllmBackend()
