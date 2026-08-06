@@ -125,6 +125,9 @@ only records created by your own run and preserve unrelated user artefacts.
 
 - A model entry must have an owner/name ID, pinned commit revision, explicit
   backend and precision, offline access, and remote code disabled.
+- Keep a configured Hugging Face cache path explicit when the snapshot is not
+  stored in the library's default cache. Do not search for or select another
+  revision automatically.
 - Increasing context/output limits or reducing memory/thermal safeguards is a
   safety-affecting change. Document its evidence and update validation guidance.
 - Fixtures must describe synthetic environments and state explicitly that they

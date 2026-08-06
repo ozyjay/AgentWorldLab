@@ -49,6 +49,7 @@ def resolve_local_snapshot(model: ModelConfig) -> Path:
                 repo_id=model.model_id,
                 revision=model.revision,
                 local_files_only=True,
+                cache_dir=str(model.cache_directory) if model.cache_directory else None,
             )
         )
     except Exception as exc:
@@ -79,6 +80,7 @@ def inspect_model_metadata(model: ModelConfig) -> dict[str, Any]:
     return {
         "model_id": model.model_id,
         "revision": model.revision,
+        "cache_directory": str(model.cache_directory) if model.cache_directory else None,
         "snapshot_path": str(root),
         "snapshot_bytes": sum(path.stat().st_size for path in files),
         "architectures": config.get("architectures"),
@@ -108,6 +110,7 @@ def tokenizer_probe(model: ModelConfig, prompt: str) -> dict[str, Any]:
             revision=model.revision,
             local_files_only=True,
             trust_remote_code=False,
+            cache_dir=str(model.cache_directory) if model.cache_directory else None,
         )
         rendered = processor.apply_chat_template(
             [{"role": "user", "content": [{"type": "text", "text": prompt}]}],
@@ -122,10 +125,14 @@ def tokenizer_probe(model: ModelConfig, prompt: str) -> dict[str, Any]:
         token_count = len(input_ids[0])
     else:
         token_count = len(input_ids)
+    tokenizer = getattr(processor, "tokenizer", None)
     return {
         "model_id": model.model_id,
         "revision": model.revision,
         "token_count": token_count,
         "rendered_prompt": rendered,
-        "special_tokens": getattr(processor, "special_tokens_map", None),
+        "special_tokens": (
+            getattr(processor, "special_tokens_map", None)
+            or getattr(tokenizer, "special_tokens_map", None)
+        ),
     }

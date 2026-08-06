@@ -84,7 +84,7 @@ network-enabled operator action. The configured revision is immutable:
 
 ```bash
 hf download Qwen/Qwen-AgentWorld-35B-A3B \
-  --revision 40c34e6b30e8bf927759eb39dc18f06d0cbf5248
+  --revision 60d2b0434a53d2e62a7c00a489586815d94ebffb
 ```
 
 After the snapshot is present, force offline operation and progress one stage
@@ -99,6 +99,11 @@ agentworldlab probe-tokenizer --model agentworld
 agentworldlab run --model agentworld \
   --fixture fixtures/terminal/single-transition-v1.json
 ```
+
+The target-machine configuration points `cache_directory` at
+`/mnt/work/models/huggingface/hub`, matching HuggingFacePull's cache. Override
+that path in a local configuration when using another machine; model access
+remains offline and revision-pinned.
 
 The default real-model limits are 2,048 input tokens, 64 output tokens, batch
 size one, BF16, and deterministic decoding. Do not increase them until the load

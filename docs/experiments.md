@@ -93,6 +93,7 @@ specific enough for deterministic checks without overfitting prose.
 Each run writes JSON and Markdown under `records/`. Review the JSON record for:
 
 - exact host/software, model, backend, revision, precision, and fixture identity;
+- the configured local Hugging Face cache directory;
 - cold or warm classification and all token/context limits;
 - load, preprocessing, prefill, decode, total latency, and tokens per second;
 - initial, peak, and post-unload system/GPU memory;
@@ -121,4 +122,3 @@ Start at approximately 2K input and 64 output tokens. After the initial
 Transformers milestone passes, progress deliberately through 8K/512, 16K/1,024,
 and finally 32K. Do not start with 128K or 256K contexts. Follow the acceptance
 and rollback table in [validation.md](validation.md).
-

@@ -2,7 +2,8 @@
 # constructor flag against the installed vLLM release.
 [models.agentworld]
 model_id = "Qwen/Qwen-AgentWorld-35B-A3B"
-revision = "40c34e6b30e8bf927759eb39dc18f06d0cbf5248"
+revision = "60d2b0434a53d2e62a7c00a489586815d94ebffb"
+cache_directory = "/mnt/work/models/huggingface/hub"
 precision = "bfloat16"
 backend = "vllm"
 local_files_only = true
@@ -30,4 +31,3 @@ terminate_celsius = 90
 cooldown_celsius = 75
 cooldown_seconds = 30
 sensor_labels = ["Tctl", "cpu@4c", "edge"]
-

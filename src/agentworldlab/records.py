@@ -60,6 +60,7 @@ def new_record(
             "backend": model.backend,
             "model_id": model.model_id,
             "revision": model.revision,
+            "cache_directory": str(model.cache_directory) if model.cache_directory else None,
             "precision": model.precision,
             "quantisation": None,
         },

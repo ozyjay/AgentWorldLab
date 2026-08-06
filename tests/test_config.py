@@ -57,6 +57,23 @@ class ConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ConfigurationError, "not allowlisted"):
             config.model("missing")
 
+    def test_relative_cache_directory_resolves_from_repository_root(self) -> None:
+        config = self.load(VALID.replace(
+            'model_id = "owner/model"',
+            'model_id = "owner/model"\ncache_directory = "model-cache"',
+        ))
+        self.assertEqual(
+            config.model("test").cache_directory,
+            config.source.parent.parent / "model-cache",
+        )
+
+    def test_cache_directory_must_be_a_path_string(self) -> None:
+        with self.assertRaisesRegex(ConfigurationError, "cache_directory"):
+            self.load(VALID.replace(
+                'model_id = "owner/model"',
+                'model_id = "owner/model"\ncache_directory = true',
+            ))
+
     def test_revision_must_be_pinned(self) -> None:
         with self.assertRaisesRegex(ConfigurationError, "40-character"):
             self.load(VALID.replace("1" * 40, "main"))

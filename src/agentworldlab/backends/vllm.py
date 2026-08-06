@@ -42,6 +42,7 @@ class VllmBackend(Backend):
                 trust_remote_code=False,
                 cpu_offload_gb=0,
                 language_model_only=True,
+                download_dir=str(model.cache_directory) if model.cache_directory else None,
             )
         except Exception as exc:
             self.engine = None

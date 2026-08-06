@@ -41,9 +41,10 @@ class ModelConfig:
     max_context_tokens: int
     max_output_tokens: int
     transformers_probe_passed: bool
+    cache_directory: Path | None = None
 
     @classmethod
-    def from_mapping(cls, name: str, data: dict[str, Any]) -> "ModelConfig":
+    def from_mapping(cls, name: str, data: dict[str, Any], base: Path | None = None) -> "ModelConfig":
         model_id = data.get("model_id")
         revision = data.get("revision")
         backend = data.get("backend")
@@ -59,6 +60,7 @@ class ModelConfig:
         local_files_only = data.get("local_files_only", True)
         trust_remote_code = data.get("trust_remote_code", False)
         probe_passed = data.get("transformers_probe_passed", False)
+        cache_value = data.get("cache_directory")
         if not all(isinstance(value, bool) for value in (local_files_only, trust_remote_code, probe_passed)):
             raise ConfigurationError(f"models.{name} boolean settings must be true or false")
         if not local_files_only:
@@ -67,6 +69,13 @@ class ModelConfig:
             raise ConfigurationError("remote model code is prohibited by the initial safety policy")
         if backend == "vllm" and not probe_passed:
             raise ConfigurationError("vLLM requires an explicitly recorded successful Transformers probe")
+        cache_directory: Path | None = None
+        if cache_value is not None:
+            if not isinstance(cache_value, str) or not cache_value.strip():
+                raise ConfigurationError(f"models.{name}.cache_directory must be a non-empty path")
+            cache_directory = Path(cache_value)
+            if not cache_directory.is_absolute():
+                cache_directory = ((base or Path.cwd()) / cache_directory).resolve()
         return cls(
             name=name,
             model_id=model_id,
@@ -78,6 +87,7 @@ class ModelConfig:
             max_context_tokens=_integer(data, "max_context_tokens", minimum=128),
             max_output_tokens=_integer(data, "max_output_tokens", minimum=1),
             transformers_probe_passed=probe_passed,
+            cache_directory=cache_directory,
         )
 
 
@@ -170,7 +180,7 @@ def load_config(path: str | Path) -> AppConfig:
     if not isinstance(model_data, dict) or not model_data:
         raise ConfigurationError("at least one model must be allowlisted")
     models = {
-        name: ModelConfig.from_mapping(name, values)
+        name: ModelConfig.from_mapping(name, values, source.parent.parent)
         for name, values in model_data.items()
         if isinstance(name, str) and isinstance(values, dict)
     }

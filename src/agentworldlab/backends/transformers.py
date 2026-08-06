@@ -46,6 +46,7 @@ class TransformersBackend(Backend):
                 revision=model.revision,
                 local_files_only=model.local_files_only,
                 trust_remote_code=False,
+                cache_dir=str(model.cache_directory) if model.cache_directory else None,
             )
             self.model = model_class.from_pretrained(
                 model.model_id,
@@ -55,6 +56,7 @@ class TransformersBackend(Backend):
                 dtype=dtype,
                 device_map={"": "cuda:0"},
                 low_cpu_mem_usage=True,
+                cache_dir=str(model.cache_directory) if model.cache_directory else None,
             )
             self.model.eval()
             device_map = getattr(self.model, "hf_device_map", None)

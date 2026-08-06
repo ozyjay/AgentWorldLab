@@ -32,8 +32,11 @@ Labels distinguish measurements from upstream facts and untested expectations.
   the runtime path and ROCm kernels remain unresolved.
 - The constrained build environment could not open `/dev/kfd`; no ROCm kernel,
   allocation, weight load, or generation was attempted.
-- No cached official AgentWorld snapshot was found in the inspected Hugging
-  Face cache or under `/mnt/work`.
+- HuggingFacePull subsequently cached the official snapshot at revision
+  `60d2b0434a53d2e62a7c00a489586815d94ebffb` under
+  `/mnt/work/models/huggingface/hub`. Offline inspection found 21 complete BF16
+  shards, 693 indexed tensors, no broken links or missing indexed shards, and
+  69,321,314,576 bytes (64.561 GiB) of weight shard files.
 - The FedoraUsage repository contains an automatic thermal policy with default
   82°C entry and 72°C recovery thresholds, five-second sampling, and TuneD
   integration. The sandbox could not query the system D-Bus, so installed,
