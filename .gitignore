@@ -11,3 +11,4 @@ records/*.json
 records/*.jsonl
 records/*.md
 !records/.gitkeep
+records/.worker.pid
