@@ -55,7 +55,7 @@ claims, and the no-host-execution harness invariant. Complete the manual review
 fields for factual consistency, trajectory consistency, realism, formatting,
 failure handling, synthetic constraints, and usefulness.
 
-ModelDeck integration is accepted only after this milestone passes independently.
+Host-application integration is accepted only after this milestone passes
+independently.
 Its boundary should be an environment-simulator provider carrying the same
 pinned identity, cancellation, health, unloading, and safety semantics.
-

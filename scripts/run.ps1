@@ -15,7 +15,7 @@ pwsh -NoProfile -File scripts/run.ps1 -Trajectory
 
 .EXAMPLE
 pwsh -NoProfile -File scripts/run.ps1 -Model agentworld \
-  -AcknowledgeHardwareRisk -PythonPath /path/to/rocm-env/bin/python
+  -AcknowledgeHardwareRisk
 #>
 
 [CmdletBinding()]
@@ -55,6 +55,8 @@ function Resolve-PythonCommand {
     }
 
     $Candidates = @(
+        (Join-Path $script:RepositoryRoot ".venv-rocm72/Scripts/python.exe"),
+        (Join-Path $script:RepositoryRoot ".venv-rocm72/bin/python"),
         (Join-Path $script:RepositoryRoot ".venv/Scripts/python.exe"),
         (Join-Path $script:RepositoryRoot ".venv/bin/python")
     )
@@ -166,4 +168,3 @@ finally {
     }
     Set-Location $PreviousLocation
 }
-

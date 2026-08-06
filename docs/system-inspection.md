@@ -20,11 +20,11 @@ Labels distinguish measurements from upstream facts and untested expectations.
 - Fedora ROCm RPMs are predominantly 7.1.x (`rocm-core` 7.1.1). Existing local
   environments contain PyTorch `2.9.1+rocm7.2.1` and `2.11.0+rocm7.2` builds.
   That split must be tested rather than assumed compatible.
-- An existing ROCm 7.2 environment inspected under the neighbouring ModelDeck
-  repository contains Transformers 5.13.0 and exposes both
+- A pre-existing ROCm 7.2 environment outside this repository was inspected
+  read-only. It contains Transformers 5.13.0 and exposes both
   `AutoModelForMultimodalLM` and `Qwen3_5MoeForConditionalGeneration`. This was
-  a read-only compatibility observation, not an AgentWorldLab dependency or
-  integration. Symbol presence does not prove that all gfx1151 kernels work.
+  a compatibility observation, not an AgentWorldLab dependency or integration.
+  Symbol presence does not prove that all gfx1151 kernels work.
 - A local vLLM 0.24.0+rocm723 environment exists. Its installed source registers
   `Qwen3_5MoeForConditionalGeneration` and exposes the conservative settings
   used here: generate runner, tensor-parallel size one, BF16, eager mode,
@@ -45,6 +45,11 @@ Labels distinguish measurements from upstream facts and untested expectations.
 
 ## Official upstream facts
 
+- AMD's ROCm 7.2.1 Ryzen support matrix lists gfx1151, Ryzen AI Max+ 395,
+  PyTorch 2.9.1, and Python 3.12. Its native Linux table lists Ubuntu 24.04.4,
+  not Fedora 44, and marks only FP16 as officially validated for the listed
+  Ryzen GPUs. AgentWorldLab's Fedora BF16 path therefore still requires direct
+  validation.
 - The official model configuration identifies
   `Qwen3_5MoeForConditionalGeneration`, `qwen3_5_moe`, BF16,
   `language_model_only: true`, 256 experts, 8 experts per token, 40 text layers,
@@ -52,7 +57,8 @@ Labels distinguish measurements from upstream facts and untested expectations.
 - The upstream project describes the release as 35B total and 3B active
   parameters and supports environment simulation across seven domains.
 
-Sources: [official model configuration](https://huggingface.co/Qwen/Qwen-AgentWorld-35B-A3B/blob/main/config.json)
+Sources: [AMD Ryzen compatibility matrix](https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/docs/compatibility/compatibilityryz/native_linux/native_linux_compatibility.html),
+[official model configuration](https://huggingface.co/Qwen/Qwen-AgentWorld-35B-A3B/blob/main/config.json),
 and [official AgentWorld repository](https://github.com/QwenLM/Qwen-AgentWorld).
 
 ## Engineering estimates

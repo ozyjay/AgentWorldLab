@@ -11,8 +11,7 @@ the opt-in ROCm smoke test and requires -AcknowledgeHardwareRisk.
 pwsh -NoProfile -File scripts/test.ps1
 
 .EXAMPLE
-pwsh -NoProfile -File scripts/test.ps1 -Hardware -AcknowledgeHardwareRisk \
-  -PythonPath /path/to/rocm-env/bin/python
+pwsh -NoProfile -File scripts/test.ps1 -Hardware -AcknowledgeHardwareRisk
 #>
 
 [CmdletBinding()]
@@ -43,6 +42,8 @@ function Resolve-PythonCommand {
     }
 
     $Candidates = @(
+        (Join-Path $script:RepositoryRoot ".venv-rocm72/Scripts/python.exe"),
+        (Join-Path $script:RepositoryRoot ".venv-rocm72/bin/python"),
         (Join-Path $script:RepositoryRoot ".venv/Scripts/python.exe"),
         (Join-Path $script:RepositoryRoot ".venv/bin/python")
     )
@@ -116,4 +117,3 @@ finally {
     }
     Set-Location $PreviousLocation
 }
-

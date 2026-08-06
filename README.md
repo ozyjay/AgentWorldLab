@@ -37,24 +37,53 @@ and [official model page](https://huggingface.co/Qwen/Qwen-AgentWorld-35B-A3B).
 ## Quick start: real model
 
 These commands are for the target Framework Desktop. AgentWorldLab does not
-depend on ModelDeck or any other application repository. Select the Python
-interpreter from the ROCm environment you intend to validate, then run from the
-repository root:
+depend on another application repository or its virtual environment. Create the
+project-local ROCm environment from the repository root:
 
 ```powershell
 cd /mnt/work/GitHubProjects/AgentWorldLab
-$RocmPython = "/absolute/path/to/your/rocm-environment/bin/python"
+pwsh -NoProfile -File ./scripts/setup-rocm.ps1 `
+  -AcknowledgeNetworkInstall
+```
+
+The setup script:
+
+1. finds CPython 3.12, including an installed pyenv 3.12 version;
+2. creates `.venv-rocm72` without touching the system Python;
+3. upgrades pip inside that environment;
+4. installs hash-pinned AMD ROCm 7.2.1 wheels for torch 2.9.1, torchvision
+   0.24.0, and Triton 3.5.1;
+5. installs AgentWorldLab and its Transformers dependencies; and
+6. validates Python, torch, HIP, Transformers, and package dependencies without
+   opening the GPU or loading model weights.
+
+The acknowledgement is required because the ROCm wheels are large network
+downloads. It does not download model weights: the pinned snapshot remains in
+the Hugging Face cache populated by HuggingFacePull. To select a particular
+Python 3.12 interpreter, add `-PythonPath /path/to/python3.12`.
+
+The pins follow AMD's [native Linux PyTorch installation
+guide](https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/docs/install/installrad/native_linux/install-pytorch.html)
+for ROCm 7.2.1. AMD's [Ryzen compatibility
+matrix](https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/docs/compatibility/compatibilityryz/native_linux/native_linux_compatibility.html)
+lists gfx1151, Ryzen AI Max+ 395, PyTorch 2.9.1, and Python 3.12, but its native
+Linux table lists Ubuntu rather than Fedora and marks FP16 as the validated
+precision. Creating the environment therefore establishes package consistency,
+not Fedora gfx1151 or BF16 model compatibility.
+
+Confirm the installed versions:
+
+```powershell
+$RocmPython = (Resolve-Path ./.venv-rocm72/bin/python).Path
 
 & $RocmPython -c `
   "import torch, transformers; print(torch.__version__, torch.version.hip, transformers.__version__)"
 ```
 
-The version command must report a ROCm-enabled torch build and a compatible
-Transformers installation. A project-local environment such as
-`AgentWorldLab/.venv-rocm72` is preferable because it keeps dependency changes
-independent. Do not point this project at another application's environment as
-a permanent setup, and do not install a second torch build over an environment
-that already works.
+The version command must report torch `2.9.1+rocm7.2.1`, HIP 7.2, and
+Transformers 5 or newer. `scripts/run.ps1` and `scripts/test.ps1` automatically
+prefer `.venv-rocm72`, so `-PythonPath` is unnecessary for the normal local
+workflow.
 
 First confirm that PyTorch can see exactly one gfx1151 device. This does not load
 model weights:
@@ -62,8 +91,7 @@ model weights:
 ```powershell
 pwsh -NoProfile -File ./scripts/test.ps1 `
   -Hardware `
-  -AcknowledgeHardwareRisk `
-  -PythonPath $RocmPython
+  -AcknowledgeHardwareRisk
 ```
 
 Then run one real terminal-simulation transition:
@@ -71,8 +99,7 @@ Then run one real terminal-simulation transition:
 ```powershell
 pwsh -NoProfile -File ./scripts/run.ps1 `
   -Model agentworld `
-  -AcknowledgeHardwareRisk `
-  -PythonPath $RocmPython
+  -AcknowledgeHardwareRisk
 ```
 
 That command performs one controlled lifecycle:
@@ -111,8 +138,7 @@ To propose another action in the same synthetic environment:
 pwsh -NoProfile -File ./scripts/run.ps1 `
   -Model agentworld `
   -Action "python --version" `
-  -AcknowledgeHardwareRisk `
-  -PythonPath $RocmPython
+  -AcknowledgeHardwareRisk
 ```
 
 `-Action` changes prompt data only. It does not invoke the command.
@@ -123,8 +149,7 @@ To run the fixed five-turn synthetic filesystem trajectory:
 pwsh -NoProfile -File ./scripts/run.ps1 `
   -Model agentworld `
   -Trajectory `
-  -AcknowledgeHardwareRisk `
-  -PythonPath $RocmPython
+  -AcknowledgeHardwareRisk
 ```
 
 The trajectory predicts observations for creating a simulated directory,
@@ -138,7 +163,7 @@ cannot be used together.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `-PythonPath` | `.venv`, then `python3`/`python` | Interpreter used by controller and worker |
+| `-PythonPath` | `.venv-rocm72`, `.venv`, then system Python | Interpreter used by controller and worker |
 | `-Config` | `configs/default.toml` | Model, limits, cache, and safety policy |
 | `-Model` | `mock` | Allowlisted model name; use `agentworld` for BF16 |
 | `-Fixture` | Default terminal fixture | Synthetic scenario JSON |
@@ -185,8 +210,7 @@ Example controlled perturbation with the real model:
 pwsh -NoProfile -File ./scripts/run.ps1 `
   -Model agentworld `
   -Fixture fixtures/swe/missing-dependency-v1.json `
-  -AcknowledgeHardwareRisk `
-  -PythonPath $RocmPython
+  -AcknowledgeHardwareRisk
 ```
 
 Fixtures describe conditions; they never reproduce those conditions on the
@@ -299,6 +323,17 @@ documented.
 
 ## Build and test scripts
 
+Prepare the independent real-model runtime once:
+
+```powershell
+pwsh -NoProfile -File ./scripts/setup-rocm.ps1 `
+  -AcknowledgeNetworkInstall
+```
+
+`setup-rocm.ps1` creates `.venv-rocm72`. The separate build script below creates
+`.venv-build` only for packaging; running `build.ps1` does not create or modify
+the ROCm runtime.
+
 Create source and wheel distributions:
 
 ```powershell
@@ -336,9 +371,10 @@ agentworldlab run --model mock
 agentworldlab run-trajectory --model mock
 ```
 
-Do not install a second torch build over an existing ROCm environment. To use
-the real backend, install AgentWorldLab without dependencies into the intended
-ROCm environment or run from source with `PYTHONPATH=src`:
+For the supported local runtime, use `scripts/setup-rocm.ps1`. If intentionally
+using a separately managed ROCm environment, do not install a second torch
+build over it. Install AgentWorldLab without dependencies or run from source
+with `PYTHONPATH=src`:
 
 ```bash
 /path/to/rocm-env/bin/python -m pip install --upgrade pip
@@ -420,8 +456,8 @@ daemons, or live tool connections. See [Architecture](docs/architecture.md) and
   checkpoint is enabled.
 - Context progression stops at 32K until earlier stages pass; 128K and 256K are
   not initial targets.
-- ModelDeck integration remains deferred until AgentWorldLab independently
-  passes the official BF16 milestone.
+- Integration into any host application remains out of scope until
+  AgentWorldLab independently passes the official BF16 milestone.
 
 ## Documentation
 

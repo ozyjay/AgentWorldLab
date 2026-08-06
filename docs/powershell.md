@@ -1,8 +1,42 @@
 # PowerShell scripts
 
-The scripts under `scripts/` support PowerShell 7 on Linux, macOS, and Windows.
-They resolve paths from the repository root, do not require shell activation of
-a virtual environment, and stop on the first failed native command.
+The build, test, and run scripts under `scripts/` support PowerShell 7 on Linux,
+macOS, and Windows. The ROCm setup script is Linux x86_64 only because its AMD
+wheels target that platform. All scripts resolve paths from the repository
+root, do not require shell activation of a virtual environment, and stop on the
+first failed native command.
+
+## ROCm runtime setup
+
+```powershell
+pwsh -NoProfile -File scripts/setup-rocm.ps1 `
+  -AcknowledgeNetworkInstall
+```
+
+This creates `.venv-rocm72` with Python 3.12 and the hash-pinned AMD ROCm 7.2.1
+torch, torchvision, and Triton wheels in `requirements/rocm72.txt`. It upgrades
+pip before installing packages, installs `.[transformers]`, runs `pip check`,
+and verifies imports and versions. Validation does not access the GPU or load
+the cached model.
+
+The script first tries `python3.12`, then an installed pyenv 3.12 version, then
+a system `python3` or `python` only if it is Python 3.12. Override discovery
+when necessary:
+
+```powershell
+pwsh -NoProfile -File scripts/setup-rocm.ps1 `
+  -PythonPath /path/to/python3.12 `
+  -VirtualEnvironment .venv-rocm72 `
+  -AcknowledgeNetworkInstall
+```
+
+`-AcknowledgeNetworkInstall` confirms the large package download. It does not
+authorise a model load or hardware test. `-SkipDependencyInstall` is intended
+only to revalidate an already populated environment; it creates no packages and
+will fail if the required packages are absent.
+
+After setup, the test and run scripts prefer `.venv-rocm72` automatically. Pass
+`-PythonPath` only to override it.
 
 ## Build
 
@@ -45,8 +79,7 @@ The ROCm smoke test is separately gated:
 ```powershell
 pwsh -NoProfile -File scripts/test.ps1 `
   -Hardware `
-  -AcknowledgeHardwareRisk `
-  -PythonPath /path/to/rocm-env/bin/python
+  -AcknowledgeHardwareRisk
 ```
 
 This acknowledgement does not relax any repository safety control. Run it only
@@ -82,8 +115,7 @@ Any backend other than `mock` requires an explicit acknowledgement:
 ```powershell
 pwsh -NoProfile -File scripts/run.ps1 `
   -Model agentworld `
-  -AcknowledgeHardwareRisk `
-  -PythonPath /path/to/rocm-env/bin/python
+  -AcknowledgeHardwareRisk
 ```
 
 Other options include `-Config`, `-MaxInputTokens`, `-MaxOutputTokens`,
@@ -92,4 +124,3 @@ authoritative; script parameters cannot exceed them.
 
 Model output is passed only to AgentWorldLab's recorder and evaluator. The
 PowerShell script never invokes or interpolates generated content.
-

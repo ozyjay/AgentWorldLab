@@ -13,8 +13,20 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -e '.[test]'
 ```
 
-When using an existing ROCm environment, do not install another torch build over
-it. Install this repository without dependencies and inspect versions first:
+Create the supported project-local ROCm environment with PowerShell 7:
+
+```powershell
+pwsh -NoProfile -File scripts/setup-rocm.ps1 `
+  -AcknowledgeNetworkInstall
+```
+
+This uses CPython 3.12 and creates `.venv-rocm72`; it does not modify the
+routine `.venv` or the packaging-only `.venv-build`. See
+[PowerShell scripts](powershell.md) for discovery, pins, and options.
+
+When intentionally using a separately managed ROCm environment, do not install
+another torch build over it. Install this repository without dependencies and
+inspect versions first:
 
 ```bash
 /path/to/rocm-env/bin/python -m pip install --upgrade pip
@@ -47,7 +59,7 @@ The hardware smoke check is deliberately excluded from routine runs:
 
 ```bash
 AGENTWORLDLAB_HARDWARE_TESTS=1 \
-  /path/to/rocm-env/bin/python -m unittest discover \
+  .venv-rocm72/bin/python -m unittest discover \
     -s tests -p 'test_hardware.py' -v
 ```
 

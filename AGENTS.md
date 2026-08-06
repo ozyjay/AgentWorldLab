@@ -47,7 +47,7 @@ Do not perform any of the following unless the user explicitly requests it:
 - install or remove system packages;
 - change kernel parameters, BIOS settings, services, thermal policies, power
   profiles, udev rules, firmware settings, or FedoraUsage configuration;
-- change ModelDeck or integrate AgentWorldLab into it;
+- change or integrate AgentWorldLab into a neighbouring application repository;
 - create commits, branches, tags, pull requests, or pushes.
 
 Read-only system inspection is permitted when relevant. Clearly separate
@@ -69,6 +69,7 @@ Never present fitting in memory as evidence of practical usability.
 - `fixtures/`: synthetic, reproducible environment scenarios only.
 - `tests/`: standard-library routine tests and opt-in hardware checks.
 - `scripts/`: cross-platform PowerShell build, test, and safe-run entry points.
+- `requirements/`: platform-specific, hash-pinned runtime foundations.
 - `docs/`: architecture, operations, validation, and current-system findings.
 - `records/`: generated experiment artefacts; keep only `.gitkeep` in source.
 
@@ -97,10 +98,15 @@ PYTHONPATH=src python3 -m agentworldlab run-trajectory --model mock
 Equivalent PowerShell entry points are:
 
 ```powershell
+pwsh -NoProfile -File scripts/setup-rocm.ps1 -AcknowledgeNetworkInstall
 pwsh -NoProfile -File scripts/build.ps1
 pwsh -NoProfile -File scripts/test.ps1
 pwsh -NoProfile -File scripts/run.ps1
 ```
+
+`setup-rocm.ps1` is Linux x86_64 only and creates the independent
+`.venv-rocm72` runtime. It validates package compatibility without opening the
+GPU or loading model weights. The other scripts remain cross-platform.
 
 Generated mock records are verification artefacts, not source files. Remove
 only records created by your own run and preserve unrelated user artefacts.
