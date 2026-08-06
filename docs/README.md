@@ -10,6 +10,7 @@ anything against real hardware.
 | [Architecture](architecture.md) | Process boundaries, data flow, backends, and failure containment |
 | [Development](development.md) | Local setup, checks, contribution workflow, and documentation maintenance |
 | [Experiments](experiments.md) | Fixture authoring, single and trajectory runs, comparisons, and record review |
+| [PowerShell scripts](powershell.md) | Cross-platform build, test, and safe-run commands |
 | [Worker protocol](protocol.md) | Versioned JSON Lines requests, responses, and lifecycle rules |
 | [Thermal and memory safety](safety.md) | Thresholds, resource policy, and recovery procedure |
 | [System inspection](system-inspection.md) | Verified host observations, upstream facts, estimates, and open questions |
@@ -33,4 +34,3 @@ Before an explicitly authorised hardware probe:
 
 The root [README](../README.md) contains the shortest safe-start path. Repository
 automation and coding agents must also follow [AGENTS.md](../AGENTS.md).
-

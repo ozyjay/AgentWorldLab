@@ -68,6 +68,7 @@ Never present fitting in memory as evidence of practical usability.
 - `configs/`: reviewed runtime/model policies.
 - `fixtures/`: synthetic, reproducible environment scenarios only.
 - `tests/`: standard-library routine tests and opt-in hardware checks.
+- `scripts/`: cross-platform PowerShell build, test, and safe-run entry points.
 - `docs/`: architecture, operations, validation, and current-system findings.
 - `records/`: generated experiment artefacts; keep only `.gitkeep` in source.
 
@@ -91,6 +92,14 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 -m agentworldlab inspect-host
 PYTHONPATH=src python3 -m agentworldlab run --model mock
 PYTHONPATH=src python3 -m agentworldlab run-trajectory --model mock
+```
+
+Equivalent PowerShell entry points are:
+
+```powershell
+pwsh -NoProfile -File scripts/build.ps1
+pwsh -NoProfile -File scripts/test.ps1
+pwsh -NoProfile -File scripts/run.ps1
 ```
 
 Generated mock records are verification artefacts, not source files. Remove
@@ -155,4 +164,3 @@ In a handoff, report:
 - whether any real weights or GPU kernels were loaded;
 - observed failures and unresolved compatibility questions;
 - generated records that were retained or removed.
-

@@ -46,6 +46,18 @@ agentworldlab run --model mock
 agentworldlab run-trajectory --model mock
 ```
 
+PowerShell 7 equivalents are available for routine workflows:
+
+```powershell
+pwsh -NoProfile -File scripts/build.ps1
+pwsh -NoProfile -File scripts/test.ps1
+pwsh -NoProfile -File scripts/run.ps1
+pwsh -NoProfile -File scripts/run.ps1 -Trajectory
+```
+
+See [PowerShell scripts](docs/powershell.md) for parameters and the explicit
+acknowledgement required by hardware-dependent test or run paths.
+
 The mock command creates one JSON record and one Markdown summary in `records/`.
 It exercises the same controller and worker protocol as a hardware run.
 
@@ -125,6 +137,7 @@ cleans the stale PID record. Details are in [protocol.md](docs/protocol.md).
   milestone passes.
 
 See the [documentation index](docs/README.md) for architecture, development,
-experiments, protocol, safety, system inspection, and validation guidance.
+experiments, PowerShell workflows, protocol, safety, system inspection, and
+validation guidance.
 Read [safety.md](docs/safety.md) and [validation.md](docs/validation.md) before
 any hardware-dependent run.

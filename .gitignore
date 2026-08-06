@@ -3,10 +3,10 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .venv/
+.venv-build/
 dist/
 build/
 records/*.json
 records/*.jsonl
 records/*.md
 !records/.gitkeep
-
