@@ -124,6 +124,7 @@ cleans the stale PID record. Details are in [protocol.md](docs/protocol.md).
 - ModelDeck integration remains deferred until the independent acceptance
   milestone passes.
 
-See [system-inspection.md](docs/system-inspection.md),
-[safety.md](docs/safety.md), and [validation.md](docs/validation.md) before any
-hardware-dependent run.
+See the [documentation index](docs/README.md) for architecture, development,
+experiments, protocol, safety, system inspection, and validation guidance.
+Read [safety.md](docs/safety.md) and [validation.md](docs/validation.md) before
+any hardware-dependent run.
