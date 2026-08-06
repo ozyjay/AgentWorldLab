@@ -20,10 +20,11 @@ Labels distinguish measurements from upstream facts and untested expectations.
 - Fedora ROCm RPMs are predominantly 7.1.x (`rocm-core` 7.1.1). Existing local
   environments contain PyTorch `2.9.1+rocm7.2.1` and `2.11.0+rocm7.2` builds.
   That split must be tested rather than assumed compatible.
-- The ModelDeck ROCm 7.2 environment contains Transformers 5.13.0 and exposes
-  both `AutoModelForMultimodalLM` and
-  `Qwen3_5MoeForConditionalGeneration`. Symbol presence does not prove that
-  all gfx1151 kernels work.
+- An existing ROCm 7.2 environment inspected under the neighbouring ModelDeck
+  repository contains Transformers 5.13.0 and exposes both
+  `AutoModelForMultimodalLM` and `Qwen3_5MoeForConditionalGeneration`. This was
+  a read-only compatibility observation, not an AgentWorldLab dependency or
+  integration. Symbol presence does not prove that all gfx1151 kernels work.
 - A local vLLM 0.24.0+rocm723 environment exists. Its installed source registers
   `Qwen3_5MoeForConditionalGeneration` and exposes the conservative settings
   used here: generate runner, tensor-parallel size one, BF16, eager mode,
