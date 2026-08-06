@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "fixture_id": "mcp-malformed-response-v1",
+  "domain": "mcp",
+  "environment": {
+    "description": "A synthetic MCP tool exchange with no live server or network.",
+    "facts": ["Tool search returned malformed JSON."]
+  },
+  "history": [],
+  "action": "Use the tool search result",
+  "expected": {
+    "format": "json_observation",
+    "required_facts": ["malformed", "error"]
+  }
+}
+

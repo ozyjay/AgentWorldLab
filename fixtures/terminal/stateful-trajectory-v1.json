@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "fixture_id": "terminal-stateful-trajectory-v1",
+  "domain": "terminal",
+  "environment": {
+    "description": "An isolated, entirely synthetic filesystem rooted at /workspace.",
+    "facts": ["No operation may affect the real host."]
+  },
+  "actions": [
+    "mkdir project",
+    "write 'hello' to project/readme.txt",
+    "list project",
+    "replace 'hello' with 'hello world' in project/readme.txt",
+    "read project/readme.txt"
+  ],
+  "expected": {
+    "format": "json_observation",
+    "final_facts": ["project/readme.txt", "hello world"]
+  }
+}
+

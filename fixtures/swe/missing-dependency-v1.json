@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "fixture_id": "swe-missing-dependency-v1",
+  "domain": "swe",
+  "environment": {
+    "description": "A synthetic software project; no repository command is executed.",
+    "facts": ["pytest is not installed in the simulated environment."]
+  },
+  "history": [],
+  "action": "Run the test suite",
+  "expected": {
+    "format": "json_observation",
+    "required_facts": ["pytest", "unavailable"]
+  }
+}
+

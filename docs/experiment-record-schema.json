@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentworldlab.local/schemas/experiment-record-v1.json",
+  "title": "AgentWorldLab experiment record",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "experiment_id",
+    "started_at",
+    "finished_at",
+    "host",
+    "software",
+    "model",
+    "fixture",
+    "run",
+    "memory",
+    "thermal",
+    "outcome",
+    "evaluation"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "experiment_id": {"type": "string", "minLength": 1},
+    "started_at": {"type": "string"},
+    "finished_at": {"type": ["string", "null"]},
+    "host": {"type": "object"},
+    "software": {"type": "object"},
+    "model": {
+      "type": "object",
+      "required": ["backend", "model_id", "revision", "precision", "quantisation"]
+    },
+    "fixture": {
+      "type": "object",
+      "required": ["fixture_id", "schema_version", "domain"]
+    },
+    "run": {"type": "object"},
+    "memory": {"type": "object"},
+    "thermal": {"type": "object"},
+    "outcome": {
+      "type": "object",
+      "required": ["completion_status", "timeout", "error_category", "raw_output"]
+    },
+    "evaluation": {"type": "object"},
+    "trajectory": {"type": "array", "items": {"type": "object"}}
+  },
+  "additionalProperties": false
+}

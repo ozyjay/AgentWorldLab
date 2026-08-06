@@ -1,0 +1,33 @@
+# Copy only after a successful Transformers BF16 probe and verify every LLM
+# constructor flag against the installed vLLM release.
+[models.agentworld]
+model_id = "Qwen/Qwen-AgentWorld-35B-A3B"
+revision = "40c34e6b30e8bf927759eb39dc18f06d0cbf5248"
+precision = "bfloat16"
+backend = "vllm"
+local_files_only = true
+trust_remote_code = false
+max_context_tokens = 2048
+max_output_tokens = 64
+transformers_probe_passed = true
+
+[runtime]
+request_timeout_seconds = 10
+load_timeout_seconds = 900
+generation_timeout_seconds = 180
+unload_timeout_seconds = 120
+stop_timeout_seconds = 10
+minimum_available_memory_gib = 80
+minimum_memory_headroom_gib = 24
+memory_recovery_tolerance_gib = 4
+records_directory = "records"
+
+[thermal]
+sample_interval_seconds = 1
+caution_celsius = 80
+cancel_celsius = 85
+terminate_celsius = 90
+cooldown_celsius = 75
+cooldown_seconds = 30
+sensor_labels = ["Tctl", "cpu@4c", "edge"]
+

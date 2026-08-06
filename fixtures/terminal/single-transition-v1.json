@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "fixture_id": "terminal-single-transition-v1",
+  "domain": "terminal",
+  "environment": {
+    "description": "A synthetic POSIX-like terminal. It has no connection to the host.",
+    "facts": [
+      "The current simulated directory is /workspace.",
+      "The simulated directory is initially empty.",
+      "python is unavailable and python3 is installed."
+    ]
+  },
+  "history": [],
+  "action": "mkdir demo",
+  "expected": {
+    "format": "json_observation",
+    "required_facts": ["demo"],
+    "prohibited_claims": ["host command executed"]
+  }
+}
+

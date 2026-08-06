@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentworldlab"
+version = "0.1.0"
+description = "Safe local evaluation harness for Qwen-AgentWorld"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [{name = "AgentWorldLab contributors"}]
+dependencies = []
+
+[project.optional-dependencies]
+transformers = [
+  "accelerate>=1.12",
+  "huggingface-hub>=0.34",
+  "safetensors>=0.6",
+  "torch>=2.9",
+  "transformers>=5.0",
+]
+test = ["pytest>=8"]
+
+[project.scripts]
+agentworldlab = "agentworldlab.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+markers = [
+  "hardware: opt-in tests requiring the target ROCm host and model weights",
+]
+
