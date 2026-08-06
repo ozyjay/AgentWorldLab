@@ -62,6 +62,29 @@ function Resolve-CommandPath {
     return $null
 }
 
+function Get-PythonMajorMinor {
+    param([Parameter(Mandatory)] [string] $FilePath)
+
+    try {
+        $VersionOutput = @(
+            & $FilePath "-c" "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>$null
+        )
+        $ExitCode = $LASTEXITCODE
+    }
+    catch {
+        return $null
+    }
+    if ($ExitCode -ne 0 -or $VersionOutput.Count -eq 0) {
+        return $null
+    }
+
+    $Version = [string] ($VersionOutput | Select-Object -Last 1)
+    if ([string]::IsNullOrWhiteSpace($Version)) {
+        return $null
+    }
+    return $Version.Trim()
+}
+
 function Resolve-BootstrapPython {
     if ($PythonPath) {
         $Resolved = Resolve-CommandPath $PythonPath
@@ -72,16 +95,25 @@ function Resolve-BootstrapPython {
     }
 
     $Resolved = Resolve-CommandPath "python3.12"
-    if ($null -ne $Resolved) {
+    if ($null -ne $Resolved -and (Get-PythonMajorMinor $Resolved) -eq "3.12") {
         return $Resolved
     }
 
     $Pyenv = Resolve-CommandPath "pyenv"
     if ($null -ne $Pyenv) {
-        $PyenvPrefix = & $Pyenv "prefix" "3.12" 2>$null
-        if ($LASTEXITCODE -eq 0 -and $PyenvPrefix) {
-            $PyenvPython = Join-Path ($PyenvPrefix | Select-Object -Last 1) "bin/python"
-            if (Test-Path -LiteralPath $PyenvPython -PathType Leaf) {
+        try {
+            $PyenvPrefixOutput = @(& $Pyenv "prefix" "3.12" 2>$null)
+            $PyenvExitCode = $LASTEXITCODE
+        }
+        catch {
+            $PyenvPrefixOutput = @()
+            $PyenvExitCode = 1
+        }
+        if ($PyenvExitCode -eq 0 -and $PyenvPrefixOutput.Count -gt 0) {
+            $PyenvPrefix = [string] ($PyenvPrefixOutput | Select-Object -Last 1)
+            $PyenvPython = Join-Path $PyenvPrefix.Trim() "bin/python"
+            if ((Test-Path -LiteralPath $PyenvPython -PathType Leaf) -and
+                (Get-PythonMajorMinor $PyenvPython) -eq "3.12") {
                 return [System.IO.Path]::GetFullPath($PyenvPython)
             }
         }
@@ -89,11 +121,8 @@ function Resolve-BootstrapPython {
 
     foreach ($Name in @("python3", "python")) {
         $Resolved = Resolve-CommandPath $Name
-        if ($null -ne $Resolved) {
-            $Version = (& $Resolved "-c" "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" | Select-Object -Last 1).Trim()
-            if ($LASTEXITCODE -eq 0 -and $Version -eq "3.12") {
-                return $Resolved
-            }
+        if ($null -ne $Resolved -and (Get-PythonMajorMinor $Resolved) -eq "3.12") {
+            return $Resolved
         }
     }
 
@@ -121,9 +150,10 @@ try {
 
     if (-not (Test-Path -LiteralPath $EnvironmentPython -PathType Leaf)) {
         $BootstrapPython = Resolve-BootstrapPython
-        $BootstrapVersion = (& $BootstrapPython "-c" "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" | Select-Object -Last 1).Trim()
-        if ($LASTEXITCODE -ne 0 -or $BootstrapVersion -ne "3.12") {
-            throw "The ROCm environment requires CPython 3.12; '$BootstrapPython' reports $BootstrapVersion."
+        $BootstrapVersion = Get-PythonMajorMinor $BootstrapPython
+        if ($BootstrapVersion -ne "3.12") {
+            $ReportedVersion = if ($null -eq $BootstrapVersion) { "unavailable" } else { $BootstrapVersion }
+            throw "The ROCm environment requires CPython 3.12; '$BootstrapPython' reports $ReportedVersion."
         }
         Write-Host "Creating ROCm environment at $EnvironmentPath with $BootstrapPython"
         Invoke-NativeCommand $BootstrapPython @("-m", "venv", $EnvironmentPath)
@@ -133,9 +163,10 @@ try {
         throw "The ROCm environment does not contain a Python interpreter: $EnvironmentPath"
     }
 
-    $EnvironmentVersion = (& $EnvironmentPython "-c" "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" | Select-Object -Last 1).Trim()
-    if ($LASTEXITCODE -ne 0 -or $EnvironmentVersion -ne "3.12") {
-        throw "The existing environment must use CPython 3.12; it reports $EnvironmentVersion. Choose another -VirtualEnvironment path."
+    $EnvironmentVersion = Get-PythonMajorMinor $EnvironmentPython
+    if ($EnvironmentVersion -ne "3.12") {
+        $ReportedVersion = if ($null -eq $EnvironmentVersion) { "unavailable" } else { $EnvironmentVersion }
+        throw "The existing environment must use CPython 3.12; it reports $ReportedVersion. Choose another -VirtualEnvironment path."
     }
 
     if (-not $SkipDependencyInstall) {

@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -78,6 +79,37 @@ if ($errors.Count -gt 0) {
             output = result.stdout + result.stderr
             self.assertNotEqual(result.returncode, 0, output)
             self.assertIn("-AcknowledgeNetworkInstall", output)
+            self.assertFalse(environment_path.exists())
+
+    @unittest.skipUnless(sys.platform.startswith("linux"), "ROCm setup is Linux-only")
+    def test_rocm_setup_handles_failed_python_probe(self) -> None:
+        false_command = shutil.which("false")
+        self.assertIsNotNone(false_command)
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            environment_path = Path(temporary_directory) / "rocm-environment"
+            result = subprocess.run(
+                [
+                    PWSH,
+                    "-NoLogo",
+                    "-NoProfile",
+                    "-File",
+                    str(ROOT / "scripts" / "setup-rocm.ps1"),
+                    "-PythonPath",
+                    false_command,
+                    "-VirtualEnvironment",
+                    str(environment_path),
+                    "-AcknowledgeNetworkInstall",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=20,
+            )
+            output = result.stdout + result.stderr
+            self.assertNotEqual(result.returncode, 0, output)
+            self.assertIn("reports", output)
+            self.assertIn("unavailable", output)
+            self.assertNotIn("null-valued expression", output)
             self.assertFalse(environment_path.exists())
 
 
